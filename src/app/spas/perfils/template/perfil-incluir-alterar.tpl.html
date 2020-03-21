@@ -56,14 +56,20 @@
           />
         </div>
 
-          <tbody ng-repeat="perfil in vm.perfil track by $index">
-            <tr>
-              <td>{{perfil.nome}}</td>
-              <td>{{perfil.descricao}}</td>
-              <td>{{perfil.dataHoraInclusao}}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="form-group" ng-if="vm.isEdicao">
+          <label for="dataHoraAlteracaoPerfil" style="width: 300px;">Data Hora da Alteração: </label>
+          <input
+            type="text"
+            class="form-control"
+            id="dataHoraAlteracaoPerfil"
+            ng-model="vm.perfil.dataHoraAlteracao"
+            ui-mask="9999/99/99"
+            style="width: 120px;"
+            disabled
+          />
+        </div>
+
+
       </div>
     </form>
   </div>

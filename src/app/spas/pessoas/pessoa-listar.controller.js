@@ -103,7 +103,11 @@ function PessoaListarController($rootScope, $scope, $location,
         if (liberaExclusao)
             HackatonStefaniniService.excluir(vm.url + id).then(
                 function (response) {
-                    vm.init();
+                    if(response.mensagem) {
+                        alert(response.mensagem);
+                    } else {
+                        vm.init();
+                    }
                 }
             );
         else {

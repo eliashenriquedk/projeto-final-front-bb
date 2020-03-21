@@ -110,7 +110,7 @@
           </thead>
           <tbody ng-repeat="endereco in vm.pessoa.enderecos track by $index">
             <tr>
-              <td>{{endereco.cidade}}</td>
+              <td>{{endereco.localidade}}</td>
               <td>{{endereco.uf}}</td>
               <td>{{endereco.logradouro}}</td>
               <td>{{endereco.complemento}}</td>
@@ -173,6 +173,7 @@
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
+            {{vm.enderecoNovo.id ? "Editando endereço" : "Cadastrar novo endereço"}}
           <button type="button" class="close" data-dismiss="modal">
             &times;
           </button>
@@ -182,8 +183,7 @@
         <!-- MODAL -->
         <div class="modal-body">
           <div>
-
-            {{vm.enderecoNovo}}
+            <!-- {{vm.enderecoNovo}} -->
 
             <div class="form-group">
               <label for="localidade">Cidade: </label>

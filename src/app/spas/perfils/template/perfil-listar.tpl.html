@@ -27,13 +27,15 @@
           <th scope="col">Nome: </th>
           <th scope="col">Descrição</th>
           <th scope="col">Data Inclusão</th>
+          <th scope="col">Data alteração</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="perfil in vm.listaPerfilsMostrar">
+        <tr ng-repeat="perfil in vm.listaPerfilsMostrar track by $index">
           <td>{{perfil.nome}}</td>
           <td>{{perfil.descricao}}</td>
           <td>{{perfil.dataHoraInclusao}}</td>
+          <td>{{perfil.dataHoraAlteracao}}</td>
           <td>
             <img
               src="../../../app/imagens/bootstrap-icons/icons/pencil.svg"

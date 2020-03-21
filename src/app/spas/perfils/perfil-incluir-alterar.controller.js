@@ -43,6 +43,7 @@ function PerfilIncluirAlterarController(
 
     /* vm.urlPessoa = "http://localhost:8080/treinamento/api/pessoas/"; */
     vm.urlPerfil = "http://localhost:8080/treinamento/api/perfils/";
+    vm.isEdicao = false;
 
 
 
@@ -62,6 +63,7 @@ function PerfilIncluirAlterarController(
                     if ($routeParams.idPerfil) {
                         vm.tituloTela = "Editar Perfil";
                         vm.acao = "Editar";
+                        vm.isEdicao = true;
                         
                         vm.recuperarObjetoPorIDURL($routeParams.idPerfil, vm.urlPerfil).then(
                             function (perfilRetorno) {
