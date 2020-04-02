@@ -20,6 +20,7 @@ function PessoaIncluirAlterarController(
     /**ATRIBUTOS DA TELA */
     const vm = this;
     vm.isEdicao = false;
+    vm.erroCep = false;
 
     vm.pessoa = {
         id: null,
@@ -76,8 +77,9 @@ function PessoaIncluirAlterarController(
                                 if (pessoaRetorno !== undefined) {
                                     vm.pessoa = pessoaRetorno;
                                     vm.pessoa.dataNascimento = vm.formataDataTela(pessoaRetorno.dataNascimento);
-                                    vm.perfil = vm.pessoa.perfils[0];
-                                    vm.pessoa.perfils = [];
+                                    vm.perfil = vm.pessoa.perfils;
+                               
+                                    
                                 }
                             }
                         );
@@ -93,7 +95,7 @@ function PessoaIncluirAlterarController(
     };
 
     vm.retornarTelaListagem = function () {
-        $location.path("listarPessoas");
+        $location.path("/");
     };
 
     vm.abrirModal = function (endereco) {
@@ -110,7 +112,8 @@ function PessoaIncluirAlterarController(
 
         var objetoDados = angular.copy(vm.pessoa);
         objetoDados.dataNascimento = vm.formataDataJava(vm.pessoa.dataNascimento);
-        
+        vm.enviarArquivo();
+        objetoDados.base64Imagem = vm.base64Imagem;
         var listaEndereco = [];
         angular.forEach(objetoDados.enderecos, function (value, key) {
             if (value.complemento.length > 0) {
@@ -130,7 +133,7 @@ function PessoaIncluirAlterarController(
                 }
             });
             if (isNovoPerfil)
-                objetoDados.perfils.push(vm.perfil);
+                objetoDados.perfils = vm.perfil;
         }
         if (vm.acao == "Cadastrar") {
 
@@ -314,5 +317,57 @@ function PessoaIncluirAlterarController(
         };
     };
 
+
+    vm.buscarCep = function() {
+        if(vm.enderecoNovo.cep.length < 8){
+            vm.erroCep = true;
+        } else {
+            HackatonStefaniniService.buscarCep(vm.enderecoNovo.cep).then(
+                function (responseCep) {
+                        if(!responseCep.data.erro) {
+                            vm.enderecoNovo.uf = responseCep.data.uf;
+                            vm.enderecoNovo.localidade = responseCep.data.localidade;
+                            vm.enderecoNovo.bairro = responseCep.data.bairro;
+                            vm.enderecoNovo.logradouro = responseCep.data.logradouro;
+                            vm.enderecoNovo.complemento = responseCep.data.complemento;
+                            vm.erroCep = false;
+                        } else {
+                            vm.erroCep = true;
+                        }
+                }
+            )
+        }
+    }
+
+
+    vm.enviarArquivo = function(){
+        vm.base64Imagem = angular.copy($("#base64Imagem").attr("src"));
+        console.log(base64Imagem);
+        
+        if(!vm.base64Imagem) {
+            vm.base64Imagem = angular.copy($("#base64Imagem").attr("ng-src"));
+            console.log(base64Imagem);
+        }
+    }
+    
+      vm.testeFuncao = function () {
+        var preview = document.querySelectorAll('img').item(0);
+        var file = document.querySelector('input[type=file').files[0];
+        var reader = new FileReader();
+    
+        reader.onloadend = function () {
+            preview.src = reader.result; // Carrega a imagem em base64
+        };
+    
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = "";
+        }
+        vm.enviarArquivo();
+      }
+
+
+      
 
 }

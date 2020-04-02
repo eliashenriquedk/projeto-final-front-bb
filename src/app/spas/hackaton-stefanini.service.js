@@ -17,7 +17,10 @@
                 },
                 incluir: function (url, data) {
                     return $http.post(url, data).then(tratarResposta, tratarErro);
-                }          
+                },
+                buscarCep: function (cep) {
+                    return $http.get("http://localhost:8080/treinamento/api/viaCep/" + cep).then(tratarResposta, tratarErro);
+                }
             };
 
             /**METODOS TRATAMENTO ERROS */

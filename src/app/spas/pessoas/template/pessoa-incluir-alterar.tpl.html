@@ -22,6 +22,19 @@
       <div class="mx-auto" style="width: 200px;">
         <h5 class="modal-title">{{vm.tituloTela}}</h5>
       </div>
+
+      <div class="form-group">
+        <img alt="Foto" id="base64Imagem" ng-src="../../../../app/imagens/fotosPessoas/{{vm.pessoa.caminhoImagem}}" style="width:120px; height:120px;"
+         ng-if="vm.pessoa" />
+        <input 
+          type="file" 
+          id="file" 
+          files-input 
+          ng-model="vm.foto"
+          ng-change="vm.testeFuncao()" 
+        />
+      </div>
+
       <div class="form-group">
         <label for="nomePessoa">Nome: </label>
         <input
@@ -60,10 +73,11 @@
           <label for="nomePerfil">Perfil</label>
           <div>
             <select
-              style="width: 250px; height: 38px;"
+              style="width: 250px; height: 150px;"
               ng-class="{'disabledDiv': vm.listaPerfil.length === 0, 'custom-select custom-select-sm': true}"
               ng-options="item as item.nome for item in vm.listaPerfil track by item.id"
               ng-model="vm.perfil"
+              multiple
             >
               <option value="">-- PERFIL --</option>
             </select>
@@ -118,7 +132,7 @@
               <td>{{endereco.cep}}</td>
               <td>
                 <img
-                  ng-class="{'disabledDiv': endereco.complemento.length === 0}"
+                  ng-class="{'disabledDiv': !endereco.id }"
                   src="../../../app/imagens/bootstrap-icons/icons/pencil.svg"
                   style="cursor: pointer;"
                   alt=""
@@ -243,7 +257,7 @@
               />
             </div>
 
-
+            
             <div class="form-group">
               <label for="cep">CEP: </label>
               <input
@@ -251,8 +265,13 @@
                 class="form-control"
                 id="cep"
                 ng-model="vm.enderecoNovo.cep"
+                ng-blur="vm.buscarCep()"
                 placeholder="Digite o cep ..."
+                maxlength="8"
               />
+            </div>
+            <div class="alert alert-danger" role="alert" ng-if="vm.erroCep">
+              Digite um cep válido!
             </div>
 
           </div>
