@@ -91,7 +91,7 @@ function PerfilIncluirAlterarController(
         return deferred.promise;
     }
 
-        /**metodo recupera objeto selecionado e preenche novamente os campos para edicao */
+    /**metodo recupera objeto selecionado e preenche novamente os campos para edicao */
     vm.recuperarObjetoPorIDURL = function (id, url) {
 
         var deferred = $q.defer();

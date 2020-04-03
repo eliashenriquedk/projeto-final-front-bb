@@ -55,6 +55,8 @@ function PessoaIncluirAlterarController(
     vm.urlPerfil = "http://localhost:8080/treinamento/api/perfils/";
     vm.urlPessoa = "http://localhost:8080/treinamento/api/pessoas/";
 
+
+
     /**METODOS DE INICIALIZACAO */
     vm.init = function () {
 
@@ -78,7 +80,8 @@ function PessoaIncluirAlterarController(
                                     vm.pessoa = pessoaRetorno;
                                     vm.pessoa.dataNascimento = vm.formataDataTela(pessoaRetorno.dataNascimento);
                                     vm.perfil = vm.pessoa.perfils;
-                               
+                                    console.log(pessoaRetorno);
+                                    
                                     
                                 }
                             }
@@ -108,11 +111,14 @@ function PessoaIncluirAlterarController(
         vm.endereco = undefined;
     };
 
+
+    /* ------------------------------------------------------------------------------------------------------------------------------------- */
+    /* cadastrar/editar */
     vm.incluir = function () {
 
         var objetoDados = angular.copy(vm.pessoa);
         objetoDados.dataNascimento = vm.formataDataJava(vm.pessoa.dataNascimento);
-        vm.enviarArquivo();
+        vm.enviarFile();
         objetoDados.base64Imagem = vm.base64Imagem;
         var listaEndereco = [];
         angular.forEach(objetoDados.enderecos, function (value, key) {
@@ -149,26 +155,8 @@ function PessoaIncluirAlterarController(
         }
     };
 
-    vm.remover = function (objeto, tipo, index) {
-        if (objeto.id){
-            var url = vm.urlPessoa + objeto.id;
-            if (tipo === "ENDERECO")
-                url = vm.urlEndereco + objeto.id;
-    
-            vm.excluir(url).then(
-                function (ojetoRetorno) {
-                    vm.init()
-                    alert("Endereço removido com sucesso!")
-                }); 
-        } else {
-            vm.pessoa.enderecos.splice(index, 1)
-        }
 
-
-        /* remover elemento do indice */
-        
-    };
-
+    /* ------------------------------------------------------------------------------------------------------------------------------------- */
     /**METODOS DE SERVICO */
     vm.recuperarObjetoPorIDURL = function (id, url) {
 
@@ -184,6 +172,9 @@ function PessoaIncluirAlterarController(
         return deferred.promise;
     };
 
+
+    /* ------------------------------------------------------------------------------------------------------------------------------------- */
+    /* Listagem de obj */
     vm.listar = function (url) {
 
         var deferred = $q.defer();
@@ -197,6 +188,9 @@ function PessoaIncluirAlterarController(
         return deferred.promise;
     }
 
+
+    /* ------------------------------------------------------------------------------------------------------------------------------------- */
+    /* salvar  */
     vm.salvar = function (url, objeto) {
 
         var deferred = $q.defer();
@@ -216,6 +210,9 @@ function PessoaIncluirAlterarController(
         return deferred.promise;
     }
 
+
+    /* ------------------------------------------------------------------------------------------------------------------------------------- */
+    /* chamando alterar da service */
     vm.alterar = function (url, objeto) {
 
         var deferred = $q.defer();
@@ -233,6 +230,9 @@ function PessoaIncluirAlterarController(
         return deferred.promise;
     }
 
+
+    /* ------------------------------------------------------------------------------------------------------------------------------------- */
+    /* chamando excluir da service */
     vm.excluir = function (url, objeto) {
 
         var deferred = $q.defer();
@@ -245,6 +245,7 @@ function PessoaIncluirAlterarController(
         );
         return deferred.promise;
     }
+
 
     /**METODOS AUXILIARES */
     vm.formataDataJava = function (data) {
@@ -263,6 +264,9 @@ function PessoaIncluirAlterarController(
         return dia + mes + ano;
     };
 
+
+    /* ------------------------------------------------------------------------------------------------------------------------------------- */
+    /* listas de uf  */
     vm.listaUF = [
         { "id": "RO", "desc": "RO" },
         { "id": "AC", "desc": "AC" },
@@ -294,6 +298,8 @@ function PessoaIncluirAlterarController(
     ];
 
 
+    /* ------------------------------------------------------------------------------------------------------------------------------------- */
+    /* Salvar/alterar  endereço */
     vm.salvarEndereco = function () {
         if(vm.enderecoNovo.id){
             vm.alterar(vm.urlEndereco, angular.copy(vm.enderecoNovo));
@@ -316,8 +322,27 @@ function PessoaIncluirAlterarController(
             complemento: null
         };
     };
+    /* ------------------------------------------------------------------------------------------------------------------------------------- */
+    /* remover endereco */    
+    vm.removerEndereco = function (objeto, tipo, index) {
+        if (objeto.id){
+            var url = vm.urlPessoa + objeto.id;
+            if (tipo === "ENDERECO")
+                url = vm.urlEndereco + objeto.id;
+    
+            vm.excluir(url).then(
+                function (ojetoRetorno) {
+                    vm.init()
+                    alert("Endereço removido com sucesso!")
+                }); 
+        } else {
+            vm.pessoa.enderecos.splice(index, 1)
+        }      
+    };
 
 
+    /* ------------------------------------------------------------------------------------------------------------------------------------- */
+    /* passar cep para o buscarCep da service  */
     vm.buscarCep = function() {
         if(vm.enderecoNovo.cep.length < 8){
             vm.erroCep = true;
@@ -340,17 +365,17 @@ function PessoaIncluirAlterarController(
     }
 
 
-    vm.enviarArquivo = function(){
+    /* ------------------------------------------------------------------------------------------------------------------------------------- */
+    /* variavel base64Imagem para ser enviada ao back  */    
+    vm.enviarFile = function(){
         vm.base64Imagem = angular.copy($("#base64Imagem").attr("src"));
-        console.log(base64Imagem);
-        
-        if(!vm.base64Imagem) {
-            vm.base64Imagem = angular.copy($("#base64Imagem").attr("ng-src"));
-            console.log(base64Imagem);
-        }
+        // if(!vm.base64Imagem) {
+        //     vm.base64Imagem = angular.copy($("#base64Imagem").attr("ng-src"));
+        // }
     }
-    
-      vm.testeFuncao = function () {
+    /* ------------------------------------------------------------------------------------------------------------------------------------- */
+    /* file  */   
+      vm.setarPreview = function () {
         var preview = document.querySelectorAll('img').item(0);
         var file = document.querySelector('input[type=file').files[0];
         var reader = new FileReader();
@@ -364,10 +389,7 @@ function PessoaIncluirAlterarController(
         } else {
             preview.src = "";
         }
-        vm.enviarArquivo();
+        vm.enviarFile();
       }
-
-
-      
 
 }
