@@ -6,84 +6,59 @@ function PessoaListarController($rootScope, $scope, $location,
     $q, $filter, $routeParams, HackatonStefaniniService) {
     vm = this;
 
-    vm.qdePorPagina = 5;
+    vm.quantidadePorPagina = 5;
     vm.ultimoIndex = 0;
-    vm.contador = 0;
+    vm.paginaAtual = 0;
 
-    vm.url = "http://localhost:8080/treinamento/api/pessoas/";
+    vm.urlPaginada = "http://localhost:8080/treinamento/api/pessoas/paginacao";
+    vm.urlPessoa = "http://localhost:8080/treinamento/api/pessoas/";
     vm.urlEndereco = "http://localhost:8080/treinamento/api/enderecos/";
 
+
+    /* --------------------------------------------------------------------------------------------------------------------------------  */
+
     vm.init = function () {
-        HackatonStefaniniService.listar(vm.url).then(
+        vm.paginaAtual = 1;
+        vm.paginar();
+    }
+
+    /* --------------------------------------------------------------------------------------------------------------------------------  */
+    // "http://localhost:8080/treinamento/api/pessoas/"indiceAtual=????????&quantidadePorPagina=???????? 
+    vm.paginar = function () {
+        HackatonStefaniniService.listar(
+          vm.urlPaginada + "?indiceAtual=" + vm.ultimoIndex + "&quantidadePorPagina=" + vm.quantidadePorPagina
+          ).then(
             function (responsePessoas) {
-                if (responsePessoas.data !== undefined)
-                    vm.listaPessoas = responsePessoas.data;
-
-                vm.listaPessoasMostrar = [];
-                var max = vm.listaPessoas.length > vm.qdePorPagina ? vm.qdePorPagina : vm.listaPessoas.length;
-
-                vm.qdePaginacao = new Array(vm.listaPessoas.length % vm.qdePorPagina === 0 ? vm.listaPessoas.length / vm.qdePorPagina : parseInt(vm.listaPessoas.length / vm.qdePorPagina) + 1);
-                vm.currentPage = 1;
-                for (var count = 0; count < max; count++) {
-                    vm.listaPessoasMostrar.push(vm.listaPessoas[count]);
-                    vm.ultimoIndex++;
-                }
-
-                vm.listaPessoasMostrar.sort(function (a, b) {
-                    return a.id - b.id;
-                });
-
-                HackatonStefaniniService.listar(vm.urlEndereco).then(
-                    function (responseEndereco) {
-                        if (responseEndereco.data !== undefined)
-                            vm.listaEndereco = responseEndereco.data;
-                    }
-                );
+              // console.log(responsePessoas.data);
+              vm.listaPessoasMostrar = responsePessoas.data.resultado;
+              vm.quantidadeDePaginas = new Array(responsePessoas.data.totalPaginas);
+              vm.totalResultados = responsePessoas.data.quantidadeDeResultados;
             }
-        );
-    };
+          );
+      }
 
-    vm.atualizarPaginanacao = function (index) {
 
-        if (index >= vm.currentPage)
-            vm.avancarPaginanacao(index);
-        else
-            vm.retrocederPaginanacao(index);
-    };
+    /* --------------------------------------------------------------------------------------------------------------------------------  */
 
-    vm.avancarPaginanacao = function (index) {
-        
-        vm.listaPessoasMostrar = [];
-        vm.currentPage++;
-
-        var idx = angular.copy(vm.ultimoIndex);
-        var cont = vm.listaPessoas.length - vm.qdePorPagina;
-        for (var count = cont > vm.qdePorPagina ? vm.qdePorPagina : cont; count > 0; count--) {
-            vm.listaPessoasMostrar.push(vm.listaPessoas[idx++]);
-            vm.ultimoIndex++;
-            vm.contador++;
+      vm.atualizarPaginacao = function (index) {
+        vm.paginaAtual = index + 1;
+        vm.ultimoIndex = index * vm.quantidadePorPagina;
+        vm.paginar();
+      };
+    
+      vm.avancarPaginacao = function () {
+        vm.atualizarPaginacao(vm.paginaAtual);
+      };
+    
+      vm.retrocederPaginacao = function () {
+        if(vm.paginaAtual > 1) {
+          vm.atualizarPaginacao(vm.paginaAtual - 2);
         }
-        vm.listaPessoasMostrar.sort(function (a, b) {
-            return a.id - b.id;
-        });
-    };
+      };
+    
 
-    vm.retrocederPaginanacao = function (index) {
-        
-        vm.listaPessoasMostrar = [];
 
-        vm.currentPage--;
-        var idx = vm.contador - 1;
-        vm.ultimoIndex = idx + 1;
-        for (var count = vm.qdePorPagina; count > 0; count--) {
-            vm.listaPessoasMostrar.push(vm.listaPessoas[idx--]);
-            vm.contador--;
-        }
-        vm.listaPessoasMostrar.sort(function (a, b) {
-            return a.id - b.id;
-        });
-    };
-
+    /* --------------------------------------------------------------------------------------------------------------------------------  */
     vm.editar = function (id) {
         if (id !== undefined)
             $location.path("EditarPessoas/" + id);
@@ -91,6 +66,8 @@ function PessoaListarController($rootScope, $scope, $location,
             $location.path("cadastrarPessoa");
     }
 
+
+    /* --------------------------------------------------------------------------------------------------------------------------------  */
     vm.remover = function (id) {
 
         var liberaExclusao = true;
@@ -101,7 +78,7 @@ function PessoaListarController($rootScope, $scope, $location,
         });
 
         if (liberaExclusao)
-            HackatonStefaniniService.excluir(vm.url + id).then(
+            HackatonStefaniniService.excluir(vm.urlPessoa + id).then(
                 function (response) {
                     if(response.mensagem) {
                         alert(response.mensagem);
@@ -114,44 +91,4 @@ function PessoaListarController($rootScope, $scope, $location,
             alert("Pessoa com Endereço vinculado, exclusão não permitida");
         }
     }
-
-    vm.retornarTelaListagem = function () {
-        $location.path("listarPessoas");
-    }
-
-
-    vm.listaUF = [
-        { "id": "RO", "desc": "RO" },
-        { "id": "AC", "desc": "AC" },
-        { "id": "AM", "desc": "AM" },
-        { "id": "RR", "desc": "RR" },
-        { "id": "PA", "desc": "PA" },
-        { "id": "AP", "desc": "AP" },
-        { "id": "TO", "desc": "TO" },
-        { "id": "MA", "desc": "MA" },
-        { "id": "PI", "desc": "PI" },
-        { "id": "CE", "desc": "CE" },
-        { "id": "RN", "desc": "RN" },
-        { "id": "PB", "desc": "PB" },
-        { "id": "PE", "desc": "PE" },
-        { "id": "AL", "desc": "AL" },
-        { "id": "SE", "desc": "SE" },
-        { "id": "BA", "desc": "BA" },
-        { "id": "MG", "desc": "MG" },
-        { "id": "ES", "desc": "ES" },
-        { "id": "RJ", "desc": "RJ" },
-        { "id": "SP", "desc": "SP" },
-        { "id": "PR", "desc": "PR" },
-        { "id": "SC", "desc": "SC" },
-        { "id": "RS", "desc": "RS" },
-        { "id": "MS", "desc": "MS" },
-        { "id": "MT", "desc": "MT" },
-        { "id": "GO", "desc": "GO" },
-        { "id": "DF", "desc": "DF" }
-    ];
-
-
-
-
-    
 }

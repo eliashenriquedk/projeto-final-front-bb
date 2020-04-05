@@ -7,92 +7,69 @@ function PerfilListarController($rootScope, $scope, $location,
     
     vm = this;
 
-    vm.qdePorPagina = 5;
+    vm.quantidadePorPagina = 5;
     vm.ultimoIndex = 0;
-    vm.contador = 0;
+    vm.paginaAtual = 0;
 
-    /* conforme vem do back */
+
+    vm.urlPaginacaoPerfil = "http://localhost:8080/treinamento/api/perfils/paginacaoPerfil";
     vm.urlPerfil = "http://localhost:8080/treinamento/api/perfils/";
 
+    /* --------------------------------------------------------------------------------------------------------------------------------  */
+
     vm.init = function () {
-        HackatonStefaniniService.listar(vm.urlPerfil).then(
-            function (responsePerfils) {
-                if (responsePerfils.data !== undefined) {
-                    console.log(responsePerfils)
-                    vm.listaPerfils = responsePerfils.data;
-                }
-                vm.listaPerfilsMostrar = [];
-                var max = vm.listaPerfils.length > vm.qdePorPagina ? vm.qdePorPagina : vm.listaPerfils.length;
-
-                vm.qdePaginacao = new Array(vm.listaPerfils.length % vm.qdePorPagina === 0 ? vm.listaPerfils.length / vm.qdePorPagina : parseInt(vm.listaPerfils.length / vm.qdePorPagina) + 1);
-                vm.currentPage = 1;
-                for (var count = 0; count < max; count++) {
-                    vm.listaPerfilsMostrar.push(vm.listaPerfils[count]);
-                    vm.ultimoIndex++;
-                }
-
-                vm.listaPerfilsMostrar.sort(function (a, b) {
-                    return a.id - b.id;
-                });
-            }
-        );
-    };
-
-    vm.atualizarPaginanacao = function (index) {
-
-        if (index >= vm.currentPage)
-            vm.avancarPaginanacao(index);
-        else
-            vm.retrocederPaginanacao(index);
-    };
-
-    vm.avancarPaginanacao = function (index) {
-        
-        vm.listaPerfilsMostrar = [];
-        vm.currentPage++;
-
-        var idx = angular.copy(vm.ultimoIndex);
-        var cont = vm.listaPerfils.length - vm.qdePorPagina;
-        for (var count = cont > vm.qdePorPagina ? vm.qdePorPagina : cont; count > 0; count--) {
-            vm.listaPerfilsMostrar.push(vm.listaPerfils[idx++]);
-            vm.ultimoIndex++;
-            vm.contador++;
-        }
-        vm.listaPerfilsMostrar.sort(function (a, b) {
-            return a.id - b.id;
-        });
-    };
-
-    vm.retrocederPaginanacao = function (index) {
-        
-        vm.listaPerfilsMostrar = [];
-
-        vm.currentPage--;
-        var idx = vm.contador - 1;
-        vm.ultimoIndex = idx + 1;
-        for (var count = vm.qdePorPagina; count > 0; count--) {
-            vm.listaPerfilsMostrar.push(vm.listaPerfils[idx--]);
-            vm.contador--;
-        }
-        vm.listaPerfilsMostrar.sort(function (a, b) {
-            return a.id - b.id;
-        });
-    };
-
-    vm.retornarTelaListagem = function () {
-        $location.path("listarPerfils");
+        vm.paginaAtual = 1;
+        vm.paginar();
     }
 
 
-    /* editar perfil selecionado da lista */
+    /* --------------------------------------------------------------------------------------------------------------------------------  */
+    // http://localhost:8080/treinamento/api/perfils/paginacaoPerfil?indiceAtual=???????&quantidadePorPagina=???????
+
+    vm.paginar = function () {
+        HackatonStefaniniService.listar(
+          vm.urlPaginacaoPerfil + "?indiceAtual=" + vm.ultimoIndex + "&quantidadePorPagina=" + vm.quantidadePorPagina
+          ).then(
+            function (responsePerfils) {
+                // console.log(responsePerfils);
+              vm.listaPerfilsMostrar = responsePerfils.data.resultado;
+              vm.quantidadeDePaginas = new Array(responsePerfils.data.totalPaginas);
+              vm.totalResultados = responsePerfils.data.quantidadeDeResultados;
+            }
+          );
+      }
+
+
+    /* --------------------------------------------------------------------------------------------------------------------------------  */
+    //   Atualizar Paginação
+    vm.atualizarPaginacao = function (index) {
+        vm.paginaAtual = index + 1;
+        vm.ultimoIndex = index * vm.quantidadePorPagina;
+        vm.paginar();
+      };
+    
+      vm.avancarPaginacao = function () {
+        vm.atualizarPaginacao(vm.paginaAtual);
+      };
+    
+      vm.retrocederPaginacao = function () {
+        if(vm.paginaAtual > 1) {
+          vm.atualizarPaginacao(vm.paginaAtual - 2);
+        }
+      };
+
+
+
+    /* --------------------------------------------------------------------------------------------------------------------------------  */
+    /* editar perfil selecionado da lista por id */
     vm.editar = function (id) {
         if (id !== undefined)
             $location.path("editarPerfils/" + id);
         else
-            $location.path("editarPerfils");
+            $location.path("cadastrarPerfils");
     }
 
-
+    /* --------------------------------------------------------------------------------------------------------------------------------  */
     /* remover perfil selecionado da lista */
     vm.remover = function (id) {
         HackatonStefaniniService.excluir(vm.urlPerfil + id).then(

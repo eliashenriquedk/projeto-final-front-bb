@@ -12,7 +12,7 @@
       style="text-align: right;"
     >
       <img
-        src="../../../app/imagens/bootstrap-icons/icons/document-richtext.svg"
+      src="../../../app/imagens/bootstrap-icons/icons/document-richtext.svg"
         style="cursor: pointer;"
         alt=""
         width="25"
@@ -63,24 +63,28 @@
       </tbody>
     </table>
   </div>
+  Perfis Cadastrados: {{vm.totalResultados}}
   <nav class="row" style="float: right; padding-right: 20px;">
     <ul class="pagination">
-      <li ng-class="{'page-item': true, 'disabledDiv': vm.currentPage === 1}">
-        <a class="page-link" ng-click="vm.retrocederPaginanacao()">Anterior</a>
+      <li ng-class="{'page-item': true, 'disabledDiv': vm.paginaAtual === 1}">
+        <a class="page-link" ng-click="vm.retrocederPaginacao()">Anterior</a>
       </li>
       <li
-        ng-class="{'page-item': true, 'disabledDiv': vm.currentPage === $index + 1}"
-        ng-repeat="i in vm.qdePaginacao track by $index"
+        ng-class="{'page-item': true, 'disabledDiv': vm.paginaAtual === $index + 1}"
+        ng-repeat="i in vm.quantidadeDePaginas track by $index"
       >
-        <a class="page-link" ng-click="vm.atualizarPaginanacao($index)"
+        <a class="page-link" ng-click="vm.atualizarPaginacao($index)"
           >{{$index + 1}}</a
         >
+
       </li>
       <li
-        ng-class="{'page-item': true, 'disabledDiv': vm.currentPage === vm.qdePaginacao.length}"
+        ng-class="{'page-item': true, 'disabledDiv': vm.paginaAtual === vm.qtdPaginacao.length}"
       >
-        <a class="page-link" ng-click="vm.avancarPaginanacao()">Próximo</a>
+        <a class="page-link" ng-click="vm.avancarPaginacao()">Próximo</a>
       </li>
     </ul>
   </nav>
 </div>
+
+
